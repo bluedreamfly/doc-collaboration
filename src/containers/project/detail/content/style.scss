@@ -1,0 +1,16 @@
+.doc-content {
+  background-color: #fff;
+  padding: 10px;
+  &__title {
+    border: none;
+    margin-bottom: 20px;
+  }
+
+  &__operate {
+    margin-bottom: 20px;
+    
+    button {
+      margin-right: 10px;
+    }
+  }
+}

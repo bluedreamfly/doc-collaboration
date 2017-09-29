@@ -1,0 +1,8 @@
+.project-detail {
+  display: flex;
+  justify-content: space-between;
+
+  &__doc {
+    flex: 1;
+  }
+}
