@@ -12,7 +12,8 @@ export default class ProjectDetail extends Component {
   state = {
     menuData: null,
     isAdd: false,
-    directory: null
+    directory: null,
+    document: null
   };
 
   componentDidMount() {
@@ -29,16 +30,19 @@ export default class ProjectDetail extends Component {
   };
 
   render() {
-    const { menuData, isAdd, directory } = this.state;
+    const { menuData, isAdd, directory, document } = this.state;
     const { id } = this.props.match.params;
     return (
       <div className="project-detail">
         <Slide menuData={menuData} opTreeNode={this.opTreeNode} />
         <div className="project-detail__doc">
-          {isAdd
+          {isAdd || document
             ? <DocContent
                 fetchProjectMenu={this.fetchProjectMenu}
                 projectId={id}
+                isAdd={isAdd}
+                setData={this.setData}
+                document={document}
                 dirId={directory ? directory.id : null}
               />
             : null}
@@ -47,12 +51,34 @@ export default class ProjectDetail extends Component {
     );
   }
 
+  setData = (data) => {
+    this.setState({...this.state, ...data})
+  }
+
   opTreeNode = (type, parent, current) => {
+    const { id } = this.props.match.params;
     if (type == 'add_doc') {
       this.setState({
         isAdd: true,
-        directory: current
+        directory: current,
+        document: null
       });
+    }
+    if (type == 'look_doc') {
+      this.setState({
+        document: current,
+        isAdd: false
+      })
+    }
+    if (type == 'add_dir') {
+       
+      directoryAPI.addDirectory({projectId: id, name: current.name, dirId: parent.id})
+        .then(res => {
+          if (res.data.code == 0) {
+            this.fetchProjectMenu();
+            message.info('添加目录成功');
+          }
+        })
     }
     if (type == 'rename_save') {
       let { name, id } = current;

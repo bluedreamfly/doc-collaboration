@@ -67,10 +67,10 @@ const columns = function() {
     },
     {
       title: '操作',
-      render() {
+      render(value, record, index) {
         return (
           <div>
-            <Button type="primary" shape="circle" icon="plus" />
+            <Button type="primary" onClick={() => self.delField(index)} shape="circle" icon="delete" />
           </div>
         );
       }
@@ -80,38 +80,51 @@ const columns = function() {
 
 export default class HttpParams extends Component {
   state = {
-    data: []
+    data: [],
+    expandedRowKeys: []
   };
-
+  
   componentDidMount() {
-    const { data } = this.props;
+    this.handlePropsData(this.props.data);
+  }
+
+  handlePropsData(data) {
+    
+    const keys = this.state.expandedRowKeys.slice(0);
     if (data) {
-      let subFields = data.subFields.slice(0)
-      // if (COMPOSITE_TYPES.indexOf(data.type) == -1) {
-      //   subFields: []
-      // }
+      let subFields = data.subFields
+      subFields.forEach(field => {
+        keys.push(field.id);
+      })
       this.setState({
-        data: subFields
+        data: subFields,
+        expandedRowKeys: keys
       });
     }
   }
+  
+  componentWillReceiveProps(nextProps) {
+    this.handlePropsData(nextProps.data);
+  }
+
+
   render() {
     const { title, bordered } = this.props;
-    const { data } = this.state;
-    console.log('render', data);
+    const { data, expandedRowKeys } = this.state;
     return (
       <Table
         dataSource={data}
         className="components-table-demo-nested"
         rowKey={record => record.id}
         bordered
+        expandedRowKeys={expandedRowKeys}
         pagination={false}
-        onExpand={this.expand}
         style={{ marginBottom: 20 }}
         columns={columns.call(this)}
+        onExpand={this.expand}
         expandedRowRender={(record, index) => {
           return COMPOSITE_TYPES.indexOf(record.type) > -1
-            ? <HttpParams  data={record} />
+            ? <HttpParams data={record} />
             : null;
         }}
         footer={() =>
@@ -122,9 +135,9 @@ export default class HttpParams extends Component {
               shape="circle"
               icon="plus"
             />
-            <Button onClick={this.log} type="primary" icon="plus">
+            {/*<Button onClick={this.log} type="primary" icon="plus">
               log
-            </Button>
+            </Button>*/}
           </div>}
       />
     );
@@ -132,7 +145,6 @@ export default class HttpParams extends Component {
 
   addField = () => {
     let newData = this.state.data.slice(0);
-    console.log(this.state.data);
     newData.push({
       id: guid(),
       name: '',
@@ -151,13 +163,45 @@ export default class HttpParams extends Component {
     );
   };
 
+  delField = (index) => {
+    let newData = this.state.data.slice(0);
+    newData.splice(index, 1);
+    this.setState(
+      {
+        data: newData
+      },
+      () => {
+        this.stateOnChange();
+      }
+    );
+  } 
+
+  
+
+
   stateOnChange() {
-    this.props.onChange && this.props.onChange(this.state.data.slice(0));
-    this.props.data && (this.props.data.subFields = this.state.data.slice(0));
+    
+    let { data} = this.props;
+    if (data) {
+      let newData = data.subFields ? data.subFields : data
+      newData = this.state.data.slice(0);
+      if (data.subFields) {
+        data.subFields = newData;
+      }
+    }   
   }
 
-  expand(expanded, record) {
-    // console.log('hello world', expanded, record)
+  expand = (expanded, record) =>{
+    let keys = this.state.expandedRowKeys.slice(0); 
+    if (expanded) {
+      keys.push(record.id);
+    } else {
+      let index = keys.indexOf(record.id);
+      keys.splice(index, 1);
+    }
+    this.setState({
+      expandedRowKeys: keys
+    })
   }
 
   handleField(e, index, field) {
@@ -180,5 +224,6 @@ export default class HttpParams extends Component {
 
   log = () => {
     console.log(this.state);
+    console.log(this.props.data)
   };
 }

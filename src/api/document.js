@@ -13,5 +13,8 @@ export default {
   },
   updateDocument(data) {
     return axios.put(BASE_URL, qs.stringify(data))
+  },
+  getDocumentDetail(docId) {
+    return axios.get(`${BASE_URL}/${docId}`)
   }
 }

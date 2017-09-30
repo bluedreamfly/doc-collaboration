@@ -1,3 +1,16 @@
 .doc-slide {
+  position: fixed;
   width: 300px;
+  li {
+    font-size: 14px;
+  }
+}
+
+.menu-title {
+  &__op {
+    display: inline-block;
+    button {
+      margin-right: 4px;
+    }
+  }
 }

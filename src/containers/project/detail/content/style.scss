@@ -1,6 +1,10 @@
 .doc-content {
-  background-color: #fff;
+  // background-color: #fff;
+  margin-left: 350px;
   padding: 10px;
+  input, textarea {
+    font-size: 14px;
+  }
   &__title {
     border: none;
     margin-bottom: 20px;
